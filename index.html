@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Today's Interactive To-Do List</title>
+    <!-- Tailwind CSS for modern styling and layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter and Caveat for a handwritten aesthetic touch -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        pastel: {
+                            purple: '#E9E3F5',
+                            darkPurple: '#7C6F9E',
+                            lightPurple: '#F7F5FC',
+                            accent: '#9A8CBF',
+                            cream: '#FDFCFA',
+                            text: '#4A4259',
+                            muted: '#8C829E'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        handwriting: ['Caveat', 'cursive']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #F7F5FC;
+            color: #4A4259;
+            font-family: 'Inter', sans-serif;
+        }
+        .handwritten {
+            font-family: 'Caveat', cursive;
+        }
+        .paper-card {
+            background: #FFFFFF;
+            border: 1px solid #E2DCEF;
+            box-shadow: 0 4px 20px rgba(124, 111, 158, 0.06);
+            transition: all 0.2s ease;
+        }
+        .sticky-note {
+            background: #F0ECF9;
+            border: 1px dashed #C8BCDF;
+            transform: rotate(2deg);
+        }
+    </style>
+</head>
+<body class="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
+
+    <div class="max-w-5xl mx-auto space-y-8">
+
+        <!-- HEADER SECTION -->
+        <header class="relative flex flex-col sm:flex-row items-center justify-between bg-white/60 backdrop-blur-md p-6 rounded-3xl border border-[#E2DCEF] shadow-sm">
+            <div class="text-center sm:text-left space-y-1">
+                <div class="flex items-center justify-center sm:justify-start space-x-2 text-pastel-darkPurple">
+                    <span class="text-2xl">♡</span>
+                    <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-pastel-text">Today's To-Do List</h1>
+                    <span class="text-2xl">♡</span>
+                </div>
+                <p class="text-pastel-muted font-medium italic">Small steps make big progress ♡</p>
+            </div>
+
+            <!-- Sticky Note badge -->
+            <div class="mt-4 sm:mt-0 sticky-note p-4 rounded-xl shadow-sm text-center w-36">
+                <div class="text-xs text-pastel-darkPurple font-bold uppercase tracking-wider">Note</div>
+                <div class="handwritten text-xl font-bold text-pastel-text mt-0.5">You got this ♡</div>
+            </div>
+        </header>
+
+        <!-- MAIN GRID LAYOUT -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- COLUMN 1 -->
+            <div class="space-y-6">
+
+                <!-- TOP TASKS SECTION (Interactive Add & List) -->
+                <section class="paper-card p-6 rounded-3xl">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-purple-100">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl">🎯</span>
+                            <h2 class="text-lg font-bold text-pastel-text">Top Priorities</h2>
+                        </div>
+                        <span id="top-count" class="text-xs bg-pastel-purple text-pastel-darkPurple px-2.5 py-1 rounded-full font-semibold">0 items</span>
+                    </div>
+                    
+                    <form id="top-task-form" class="flex gap-2 mb-4">
+                        <input 
+                            type="text" 
+                            id="top-task-input" 
+                            placeholder="Add a top priority task..." 
+                            class="flex-1 px-4 py-2 text-sm bg-pastel-lightPurple border border-[#E2DCEF] rounded-xl focus:outline-none focus:ring-2 focus:ring-pastel-accent text-pastel-text placeholder-pastel-muted"
+                        >
+                        <button 
+                            type="submit" 
+                            class="px-4 py-2 bg-pastel-darkPurple text-white text-sm font-medium rounded-xl hover:bg-[#6A5E8D] transition shadow-xs"
+                        >
+                            Add
+                        </button>
+                    </form>
+
+                    <div id="top-tasks-container" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                        <!-- Dynamic items -->
+                    </div>
+                </section>
+
+                <!-- SCHEDULE SECTION (Interactive Time Slots) -->
+                <section class="paper-card p-6 rounded-3xl">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-purple-100">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl">📅</span>
+                            <h2 class="text-lg font-bold text-pastel-text">Schedule</h2>
+                        </div>
+                        <span class="text-xs bg-pastel-purple text-pastel-darkPurple px-2.5 py-1 rounded-full font-semibold">Daily Planner</span>
+                    </div>
+
+                    <form id="schedule-form" class="grid grid-cols-3 gap-2 mb-4">
+                        <input 
+                            type="text" 
+                            id="schedule-time" 
+                            placeholder="Time (e.g. 9:00 AM)" 
+                            class="px-3 py-2 text-xs bg-pastel-lightPurple border border-[#E2DCEF] rounded-xl focus:outline-none focus:ring-2 focus:ring-pastel-accent text-pastel-text placeholder-pastel-muted"
+                        >
+                        <input 
+                            type="text" 
+                            id="schedule-task" 
+                            placeholder="Activity..." 
+                            class="col-span-2 px-3 py-2 text-xs bg-pastel-lightPurple border border-[#E2DCEF] rounded-xl focus:outline-none focus:ring-2 focus:ring-pastel-accent text-pastel-text placeholder-pastel-muted"
+                        >
+                        <div class="col-span-3 text-right">
+                            <button 
+                                type="submit" 
+                                class="px-4 py-1.5 bg-pastel-darkPurple text-white text-xs font-medium rounded-xl hover:bg-[#6A5E8D] transition shadow-xs"
+                            >
+                                Add Schedule Item
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="schedule-container" class="space-y-2.5 max-h-60 overflow-y-auto pr-1 text-sm">
+                        <!-- Dynamic schedule items -->
+                    </div>
+                </section>
+
+                <!-- REMINDER -->
+                <section class="paper-card p-6 rounded-3xl">
+                    <div class="flex items-center space-x-2 mb-4 pb-2 border-b border-purple-100">
+                        <span class="text-xl">💡</span>
+                        <h2 class="text-lg font-bold text-pastel-text">Reminder</h2>
+                    </div>
+                    <ul class="space-y-2 text-sm font-medium text-pastel-muted">
+                        <li class="flex items-center space-x-2"><span class="text-pastel-darkPurple">▪</span><span>Progress, not perfection.</span></li>
+                        <li class="flex items-center space-x-2"><span class="text-pastel-darkPurple">▪</span><span>I am doing my best.</span></li>
+                        <li class="flex items-center space-x-2"><span class="text-pastel-darkPurple">▪</span><span>Small steps still count.</span></li>
+                        <li class="flex items-center space-x-2"><span class="text-pastel-darkPurple">▪</span><span>It's okay to take breaks.</span></li>
+                        <li class="flex items-center space-x-2"><span class="text-pastel-darkPurple">▪</span><span>I can do this! ♡</span></li>
+                    </ul>
+                </section>
+
+            </div>
+
+            <!-- COLUMN 2 -->
+            <div class="space-y-6">
+
+                <!-- OTHER TASKS SECTION -->
+                <section class="paper-card p-6 rounded-3xl">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-purple-100">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl">📝</span>
+                            <h2 class="text-lg font-bold text-pastel-text">Other Tasks</h2>
+                        </div>
+                        <span id="other-task-count" class="text-xs bg-pastel-purple text-pastel-darkPurple px-2.5 py-1 rounded-full font-semibold">0 items</span>
+                    </div>
+
+                    <form id="add-task-form" class="flex gap-2 mb-4">
+                        <input 
+                            type="text" 
+                            id="new-task-input" 
+                            placeholder="Add a new general task..." 
+                            class="flex-1 px-4 py-2 text-sm bg-pastel-lightPurple border border-[#E2DCEF] rounded-xl focus:outline-none focus:ring-2 focus:ring-pastel-accent text-pastel-text placeholder-pastel-muted"
+                        >
+                        <button 
+                            type="submit" 
+                            class="px-4 py-2 bg-pastel-darkPurple text-white text-sm font-medium rounded-xl hover:bg-[#6A5E8D] transition shadow-xs"
+                        >
+                            Add
+                        </button>
+                    </form>
+
+                    <div id="other-tasks-container" class="space-y-2.5 max-h-72 overflow-y-auto pr-1">
+                        <!-- Dynamic items -->
+                    </div>
+                </section>
+
+                <!-- SELF CARE SECTION -->
+                <section class="paper-card p-6 rounded-3xl">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-purple-100">
+                        <div class="flex items-center space-x-2">
+                            <span class="text-xl">🤍</span>
+                            <h2 class="text-lg font-bold text-pastel-text">Self Care</h2>
+                        </div>
+                        <span id="self-count" class="text-xs bg-pastel-purple text-pastel-darkPurple px-2.5 py-1 rounded-full font-semibold">0 items</span>
+                    </div>
+
+                    <form id="self-form" class="flex gap-2 mb-4">
+                        <input 
+                            type="text" 
+                            id="self-input" 
+                            placeholder="Add self-care habit..." 
+                            class="flex-1 px-4 py-2 text-sm bg-pastel-lightPurple border border-[#E2DCEF] rounded-xl focus:outline-none focus:ring-2 focus:ring-pastel-accent text-pastel-text placeholder-pastel-muted"
+                        >
+                        <button 
+                            type="submit" 
+                            class="px-4 py-2 bg-pastel-darkPurple text-white text-sm font-medium rounded-xl hover:bg-[#6A5E8D] transition shadow-xs"
+                        >
+                            Add
+                        </button>
+                    </form>
+
+                    <div id="self-care-container" class="space-y-2.5 max-h-60 overflow-y-auto pr-1">
+                        <!-- Dynamic items -->
+                    </div>
+                </section>
+
+                <!-- GRATITUDE SECTION -->
+                <section class="paper-card p-6 rounded-3xl">
+                    <div class="flex items-center space-x-2 mb-4 pb-2 border-b border-purple-100">
+                        <span class="text-xl">⭐</span>
+                        <h2 class="text-lg font-bold text-pastel-text">Today I'm Grateful For:</h2>
+                    </div>
+
+                    <div id="gratitude-container" class="space-y-3">
+                        <!-- Dynamic Gratitude items -->
+                    </div>
+                    <form id="gratitude-form" class="flex gap-2 mt-3">
+                        <input 
+                            type="text" 
+                            id="gratitude-input" 
+                            placeholder="Add something you are grateful for..." 
+                            class="flex-1 px-3 py-1.5 text-xs bg-pastel-lightPurple border border-[#E2DCEF] rounded-xl focus:outline-none focus:ring-2 focus:ring-pastel-accent text-pastel-text placeholder-pastel-muted"
+                        >
+                        <button 
+                            type="submit" 
+                            class="px-3 py-1.5 bg-pastel-darkPurple text-white text-xs font-medium rounded-xl hover:bg-[#6A5E8D] transition"
+                        >
+                            Add
+                        </button>
+                    </form>
+                    <div class="text-right mt-3 text-lg handwritten text-pastel-darkPurple">Healthy mind, happy life ♡</div>
+                </section>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- JavaScript Application Logic with LocalStorage persistence -->
+    <script>
+        // Load state from localStorage or use default mock items
+        let topTasks = JSON.parse(localStorage.getItem('topTasks')) || [
+            { id: 1, text: "Complete my study session (2 hours)", completed: false },
+            { id: 2, text: "Finish important pending work", completed: false }
+        ];
+
+        let otherTasks = JSON.parse(localStorage.getItem('otherTasks')) || [
+            { id: 101, text: "Reply to important messages", completed: false },
+            { id: 102, text: "Clean my study space", completed: false },
+            { id: 103, text: "Water my plants", completed: false }
+        ];
+
+        let selfCareTasks = JSON.parse(localStorage.getItem('selfCareTasks')) || [
+            { id: 201, text: "Drink enough water", completed: false },
+            { id: 202, text: "Take short breaks", completed: false }
+        ];
+
+        let scheduleItems = JSON.parse(localStorage.getItem('scheduleItems')) || [
+            { id: 301, time: "8:00 AM", task: "Wake up + freshen up" },
+            { id: 302, time: "8:30 AM", task: "Study session" }
+        ];
+
+        let gratitudeList = JSON.parse(localStorage.getItem('gratitudeList')) || [
+            { id: 401, text: "Quiet peaceful morning" },
+            { id: 402, text: "Hot cup of tea" }
+        ];
+
+        function saveState() {
+            localStorage.setItem('topTasks', JSON.stringify(topTasks));
+            localStorage.setItem('otherTasks', JSON.stringify(otherTasks));
+            localStorage.setItem('selfCareTasks', JSON.stringify(selfCareTasks));
+            localStorage.setItem('scheduleItems', JSON.stringify(scheduleItems));
+            localStorage.setItem('gratitudeList', JSON.stringify(gratitudeList));
+        }
+
+        // Render Top Tasks
+        function renderTopTasks() {
+            const container = document.getElementById('top-tasks-container');
+            const badge = document.getElementById('top-count');
+            container.innerHTML = '';
+            badge.textContent = `${topTasks.length} items`;
+
+            if (topTasks.length === 0) {
+                container.innerHTML = `<p class="text-xs text-pastel-muted text-center py-3 italic">No top priorities yet ♡</p>`;
+                return;
+            }
+
+            topTasks.forEach((task, index) => {
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-2.5 rounded-xl bg-pastel-lightPurple group`;
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleTop(${task.id})" class="w-4 h-4 accent-[#7C6F9E] rounded-md cursor-pointer shrink-0">
+                        <span class="text-sm font-medium truncate ${task.completed ? 'line-through text-pastel-muted' : 'text-pastel-text'}">${task.text}</span>
+                    </div>
+                    <button onclick="deleteTop(${task.id})" class="text-pastel-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition text-xs px-2">✕</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Render Other Tasks
+        function renderOtherTasks() {
+            const container = document.getElementById('other-tasks-container');
+            const countBadge = document.getElementById('other-task-count');
+            container.innerHTML = '';
+            countBadge.textContent = `${otherTasks.length} items`;
+
+            if (otherTasks.length === 0) {
+                container.innerHTML = `<p class="text-xs text-pastel-muted text-center py-3 italic">No other tasks yet ♡</p>`;
+                return;
+            }
+
+            otherTasks.forEach((task) => {
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-2.5 rounded-xl bg-pastel-lightPurple group`;
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleOther(${task.id})" class="w-4 h-4 accent-[#7C6F9E] rounded-md cursor-pointer shrink-0">
+                        <span class="text-sm font-medium truncate ${task.completed ? 'line-through text-pastel-muted' : 'text-pastel-text'}">${task.text}</span>
+                    </div>
+                    <button onclick="deleteOther(${task.id})" class="text-pastel-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition text-xs px-2">✕</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Render Self Care
+        function renderSelfCare() {
+            const container = document.getElementById('self-care-container');
+            const badge = document.getElementById('self-count');
+            container.innerHTML = '';
+            badge.textContent = `${selfCareTasks.length} items`;
+
+            if (selfCareTasks.length === 0) {
+                container.innerHTML = `<p class="text-xs text-pastel-muted text-center py-3 italic">No self care habits added ♡</p>`;
+                return;
+            }
+
+            selfCareTasks.forEach((task) => {
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-2.5 rounded-xl bg-pastel-lightPurple group`;
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onclick="toggleSelf(${task.id})" class="w-4 h-4 accent-[#7C6F9E] rounded-md cursor-pointer shrink-0">
+                        <span class="text-sm font-medium truncate ${task.completed ? 'line-through text-pastel-muted' : 'text-pastel-text'}">${task.text}</span>
+                    </div>
+                    <button onclick="deleteSelf(${task.id})" class="text-pastel-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition text-xs px-2">✕</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Render Schedule
+        function renderSchedule() {
+            const container = document.getElementById('schedule-container');
+            container.innerHTML = '';
+
+            if (scheduleItems.length === 0) {
+                container.innerHTML = `<p class="text-xs text-pastel-muted text-center py-3 italic">No schedule items added ♡</p>`;
+                return;
+            }
+
+            scheduleItems.forEach((item) => {
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between p-2 rounded-xl bg-pastel-lightPurple group`;
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden">
+                        <span class="font-bold text-pastel-darkPurple bg-white px-2 py-0.5 rounded-md shadow-2xs shrink-0 text-xs">${item.time}</span>
+                        <span class="text-pastel-text font-medium truncate text-sm">${item.task}</span>
+                    </div>
+                    <button onclick="deleteSchedule(${item.id})" class="text-pastel-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition text-xs px-2">✕</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Render Gratitude
+        function renderGratitude() {
+            const container = document.getElementById('gratitude-container');
+            container.innerHTML = '';
+
+            if (gratitudeList.length === 0) {
+                container.innerHTML = `<p class="text-xs text-pastel-muted text-center py-2 italic">Add what you're grateful for below ♡</p>`;
+                return;
+            }
+
+            gratitudeList.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `flex items-center justify-between text-sm group`;
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden w-full border-b border-dashed border-purple-200 pb-1">
+                        <span class="font-bold text-pastel-darkPurple shrink-0">${index + 1}.</span>
+                        <span class="text-pastel-text truncate w-full">${item.text}</span>
+                        <button onclick="deleteGratitude(${item.id})" class="text-pastel-muted hover:text-red-400 opacity-0 group-hover:opacity-100 transition text-xs px-2 shrink-0">✕</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Event Handlers & Actions
+        document.getElementById('top-task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('top-task-input');
+            if (input.value.trim()) {
+                topTasks.push({ id: Date.now(), text: input.value.trim(), completed: false });
+                input.value = '';
+                saveState();
+                renderTopTasks();
+            }
+        });
+
+        document.getElementById('add-task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('new-task-input');
+            if (input.value.trim()) {
+                otherTasks.push({ id: Date.now(), text: input.value.trim(), completed: false });
+                input.value = '';
+                saveState();
+                renderOtherTasks();
+            }
+        });
+
+        document.getElementById('self-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('self-input');
+            if (input.value.trim()) {
+                selfCareTasks.push({ id: Date.now(), text: input.value.trim(), completed: false });
+                input.value = '';
+                saveState();
+                renderSelfCare();
+            }
+        });
+
+        document.getElementById('schedule-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const timeInput = document.getElementById('schedule-time');
+            const taskInput = document.getElementById('schedule-task');
+            if (timeInput.value.trim() && taskInput.value.trim()) {
+                scheduleItems.push({ id: Date.now(), time: timeInput.value.trim(), task: taskInput.value.trim() });
+                timeInput.value = '';
+                taskInput.value = '';
+                saveState();
+                renderSchedule();
+            }
+        });
+
+        document.getElementById('gratitude-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('gratitude-input');
+            if (input.value.trim()) {
+                gratitudeList.push({ id: Date.now(), text: input.value.trim() });
+                input.value = '';
+                saveState();
+                renderGratitude();
+            }
+        });
+
+        function toggleTop(id) { const t = topTasks.find(x => x.id === id); if(t) t.completed = !t.completed; saveState(); renderTopTasks(); }
+        function deleteTop(id) { topTasks = topTasks.filter(x => x.id !== id); saveState(); renderTopTasks(); }
+
+        function toggleOther(id) { const t = otherTasks.find(x => x.id === id); if(t) t.completed = !t.completed; saveState(); renderOtherTasks(); }
+        function deleteOther(id) { otherTasks = otherTasks.filter(x => x.id !== id); saveState(); renderOtherTasks(); }
+
+        function toggleSelf(id) { const t = selfCareTasks.find(x => x.id === id); if(t) t.completed = !t.completed; saveState(); renderSelfCare(); }
+        function deleteSelf(id) { selfCareTasks = selfCareTasks.filter(x => x.id !== id); saveState(); renderSelfCare(); }
+
+        function deleteSchedule(id) { scheduleItems = scheduleItems.filter(x => x.id !== id); saveState(); renderSchedule(); }
+        function deleteGratitude(id) { gratitudeList = gratitudeList.filter(x => x.id !== id); saveState(); renderGratitude(); }
+
+        // Initialize App on load
+        window.onload = function() {
+            renderTopTasks();
+            renderOtherTasks();
+            renderSelfCare();
+            renderSchedule();
+            renderGratitude();
+        };
+    </script>
+</body>
+</html>
